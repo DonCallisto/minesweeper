@@ -177,17 +177,18 @@ class GameManager
 
         $gameId = $this->session->get(self::GAME_ID_SESSION_KEY);
         $game = $this->getGameFromId($gameId);
+        $scheme = $game->getScheme();
 
         try {
-            $openBoxesStackBuilder = $this->schemeManager->openBox($row, $column, $game->getScheme());
+            $openBoxesStackBuilder = $this->schemeManager->openBox($row, $column, $scheme);
             $game->setScheme($openBoxesStackBuilder->getScheme());
             $this->entityManager->flush($game);
 
-            return $this->createArrayForJsonOpenResult($openBoxesStackBuilder);
+            return $this->createArrayForJsonOpenResult($openBoxesStackBuilder, self::GAME_STATUS_JSON_OK_CODE);
         } catch (OpeningMineBoxException $e) {
             $this->endGame($game, Game::STATUS_FAILED);
 
-            return $this->createArrayForJsonOpenResult(null);
+            return $this->createArrayForJsonOpenResult($this->schemeManager->getMinesScheme($scheme), self::GAME_STATUS_JSON_KO_CODE);
         }
     }
 
@@ -264,20 +265,14 @@ class GameManager
 
     /**
      * @param OpenBoxesStackBuilder|null $openBoxesStackBuilder
+     * @param string $gameStatus
      *
      * @return array
      */
-    protected function createArrayForJsonOpenResult(OpenBoxesStackBuilder $openBoxesStackBuilder = null)
+    protected function createArrayForJsonOpenResult(OpenBoxesStackBuilder $openBoxesStackBuilder, $gameStatus)
     {
-        if (null == $openBoxesStackBuilder) {
-            return [
-                self::STATUS_CODE_JSON_KEY => self::GAME_STATUS_JSON_KO_CODE,
-                self::OPENED_MINES_JSON_KEY => [],
-            ];
-        }
-
         $result = [
-            self::STATUS_CODE_JSON_KEY => self::GAME_STATUS_JSON_OK_CODE,
+            self::STATUS_CODE_JSON_KEY => $gameStatus,
             self::OPENED_MINES_JSON_KEY => [],
         ];
 
