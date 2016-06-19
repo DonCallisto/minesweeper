@@ -181,7 +181,13 @@ class GameManager
 
         try {
             $openBoxesStackBuilder = $this->schemeManager->openBox($row, $column, $scheme);
-            $game->setScheme($openBoxesStackBuilder->getScheme());
+            $openedScheme = $openBoxesStackBuilder->getScheme();
+            $game->setScheme($openedScheme);
+
+            if ($this->schemeManager->isSchemaCompleteOpen($openedScheme)) {
+                $game->end(Game::STATUS_CLEARED);
+            }
+
             $this->entityManager->flush($game);
 
             return $this->createArrayForJsonOpenResult($openBoxesStackBuilder, self::GAME_STATUS_JSON_OK_CODE);

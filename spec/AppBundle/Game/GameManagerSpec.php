@@ -112,6 +112,36 @@ class GameManagerSpec extends ObjectBehavior
         $openBoxesStackBuilderDouble->getStackedBoxes()->willReturn([0 => [0 => $schemeDouble[0][0]]]);
 
         $this->game->setScheme($openedSchemeDouble)->shouldBeCalled();
+
+        $schemeManager->isSchemaCompleteOpen($openedSchemeDouble)->shouldBeCalled();
+
+        $entityManager->flush($this->game)->shouldBeCalled();
+
+        $result = $this->open(0, 0);
+        $result[GameManager::STATUS_CODE_JSON_KEY]->shouldBeEqualTo(GameManager::GAME_STATUS_JSON_OK_CODE);
+        $result[GameManager::OPENED_MINES_JSON_KEY]->shouldBeEqualTo(["r_0" => ["c_0" => 0]]);
+    }
+
+    function it_opens_last_box(Session $session, EntityManager $entityManager, SchemeManager $schemeManager)
+    {
+        $schemeDouble =  $this->createASchemeDouble();
+        $clearedSchemeDouble = $this->clearedSchemeDouble();
+
+        $openBoxesStackBuilderDouble = $this->prophet->prophesize('AppBundle\Game\OpenBoxesStackBuilder');
+        $openBoxesStackBuilderDouble->getScheme()->willReturn($clearedSchemeDouble);
+
+        $this->retrieveGameExpectationsAndPromises($session, $entityManager, $schemeManager);
+        $schemeManager->openBox(0, 0, $schemeDouble)->shouldBeCalled();
+        $schemeManager->openBox(0, 0, $schemeDouble)->willReturn($openBoxesStackBuilderDouble);
+
+        $openBoxesStackBuilderDouble->getStackedBoxes()->willReturn([0 => [0 => $schemeDouble[0][0]]]);
+
+        $this->game->setScheme($clearedSchemeDouble)->shouldBeCalled();
+
+        $schemeManager->isSchemaCompleteOpen($clearedSchemeDouble)->shouldBeCalled();
+        $schemeManager->isSchemaCompleteOpen($clearedSchemeDouble)->willReturn(true);
+        $this->game->end(Game::STATUS_CLEARED)->shouldBeCalled();
+
         $entityManager->flush($this->game)->shouldBeCalled();
 
         $result = $this->open(0, 0);
@@ -239,6 +269,25 @@ class GameManagerSpec extends ObjectBehavior
         $box = $schemeDouble[0][2];
 
         $box->open();
+
+        return $schemeDouble;
+    }
+
+    /**
+     * @return array
+     */
+    private function clearedSchemeDouble()
+    {
+        $schemeDouble = $this->getSchemeDouble();
+        foreach ($schemeDouble as $rows) {
+            foreach($rows as $box) {
+                if ($box instanceof MinedBox) {
+                    continue;
+                }
+
+                $box->open();
+            }
+        }
 
         return $schemeDouble;
     }
