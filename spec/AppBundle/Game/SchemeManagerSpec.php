@@ -58,10 +58,19 @@ class SchemeManagerSpec extends ObjectBehavior
         $this->openBox(0, 0, $scheme)->shouldBeAnInstanceOf(OpenBoxesStackBuilder::class);
     }
 
+    function it_returns_mine_scheme()
+    {
+        $scheme = $this->createScheme(self::DEFAULT_ROWS_NUMBER, self::DEFAULT_COLUMNS_NUMBER, self::DEFAULT_NUMBER_OF_MINES);
+        $openBoxesStackBuilder = $this->getMinesScheme($scheme);
+        $openBoxesStackBuilder->shouldBeAnInstanceOf(OpenBoxesStackBuilder::class);
+        $openBoxesStackBuilder->shouldHaveOnlyMines(self::DEFAULT_NUMBER_OF_MINES);
+    }
+
     public function getMatchers()
     {
         return [
             'haveOnlyBoxes' => [$this, 'haveOnlyBoxes'],
+            'haveOnlyMines' => [$this, 'haveOnlyMines'],
         ];
     }
 
@@ -142,6 +151,42 @@ class SchemeManagerSpec extends ObjectBehavior
                 $boxValue
             ));
         }
+    }
+
+    /**
+     * @param OpenBoxesStackBuilder $minesStackBuilder
+     * @param integer $numberOfMines
+     *
+     * @return bool
+     *
+     * @throws FailureException
+     */
+    public function haveOnlyMines(OpenBoxesStackBuilder $minesStackBuilder, $numberOfMines)
+    {
+        $originalNumberOfMines = $numberOfMines;
+
+        $minesScheme = $minesStackBuilder->getStackedBoxes();
+        foreach ($minesScheme as $row => $rows) {
+            foreach ($rows as $column => $box) {
+                if (!$box instanceof BoxInterface) {
+                    throw new FailureException("Result array should contains only BoxInterfaces");
+                }
+
+                if ($box->isMine()) {
+                    $numberOfMines--;
+                }
+            }
+        }
+
+        if ($numberOfMines != 0) {
+            throw new FailureException(sprintf(
+                "Number of mines created is not exact. Expected %s, created %s",
+                $originalNumberOfMines,
+                $originalNumberOfMines-$numberOfMines
+            ));
+        }
+
+        return true;
     }
 
     /**

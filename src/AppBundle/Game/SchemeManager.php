@@ -82,6 +82,27 @@ class SchemeManager
     }
 
     /**
+     * @param array $scheme
+     * @return OpenBoxesStackBuilder
+     *
+     * @throws \AppBundle\Exception\OpenBoxesStackBuilderException
+     */
+    public function getMinesScheme(array $scheme)
+    {
+        $mineStackBuilder = new OpenBoxesStackBuilder($scheme);
+        foreach ($scheme as $rowIndex => $columns) {
+            foreach ($columns as $columnIndex => $box) {
+                if (!$box instanceof MinedBox) {
+                    continue;
+                }
+
+                $mineStackBuilder->addBox($rowIndex, $columnIndex, $box);
+            }
+        }
+        return $mineStackBuilder;
+    }
+
+    /**
      * @param integer $rowIndex
      * @param integer $columnIndex
      *

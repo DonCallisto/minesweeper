@@ -32,13 +32,13 @@ class OpenBoxesStackBuilder
     /**
      * @param $rowIndex
      * @param $columnIndex
-     * @param Box $box
+     * @param BoxInterface $box
      *
      * @return OpenBoxesStackBuilder
      *
      * @throws OpenBoxesStackBuilderException
      */
-    public function addBox($rowIndex, $columnIndex, Box $box)
+    public function addBox($rowIndex, $columnIndex, BoxInterface $box)
     {
         if (!isset($this->scheme[$rowIndex][$columnIndex])) {
             throw new OpenBoxesStackBuilderException("You can't add a box that is out of scheme range");

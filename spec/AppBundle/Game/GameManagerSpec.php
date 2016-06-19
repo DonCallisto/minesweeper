@@ -122,6 +122,7 @@ class GameManagerSpec extends ObjectBehavior
     function it_ends_a_game_after_open_a_mine(Session $session, EntityManager $entityManager, SchemeManager $schemeManager)
     {
         $schemeDouble =  $this->createASchemeDouble();
+        $mineBoxesStackBuilder = new OpenBoxesStackBuilder($schemeDouble);
 
         $this->retrieveGameExpectationsAndPromises($session, $entityManager, $schemeManager);
         $schemeManager->openBox(3, 1, $schemeDouble)->shouldBeCalled();
@@ -130,6 +131,9 @@ class GameManagerSpec extends ObjectBehavior
         $this->game->end(Game::STATUS_FAILED)->shouldBeCalled();
         $entityManager->flush($this->game)->shouldBeCalled();
         $session->clear(GameManager::GAME_ID_SESSION_KEY)->shouldBeCalled();
+
+        $schemeManager->getMinesScheme($schemeDouble)->willReturn($mineBoxesStackBuilder);
+        $schemeManager->getMinesScheme($schemeDouble)->shouldBeCalled();
 
         $result = $this->open(3, 1);
         $result[GameManager::STATUS_CODE_JSON_KEY]->shouldBeEqualTo(GameManager::GAME_STATUS_JSON_KO_CODE);
