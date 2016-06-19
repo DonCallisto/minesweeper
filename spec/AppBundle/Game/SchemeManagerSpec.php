@@ -12,6 +12,7 @@ use PhpSpec\Exception\Example\FailureException;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Prophecy\Prophet;
+use Symfony\Component\VarDumper\VarDumper;
 
 class SchemeManagerSpec extends ObjectBehavior
 {
@@ -64,6 +65,19 @@ class SchemeManagerSpec extends ObjectBehavior
         $openBoxesStackBuilder = $this->getMinesScheme($scheme);
         $openBoxesStackBuilder->shouldBeAnInstanceOf(OpenBoxesStackBuilder::class);
         $openBoxesStackBuilder->shouldHaveOnlyMines(self::DEFAULT_NUMBER_OF_MINES);
+    }
+
+    function it_checks_schema_opena_status()
+    {
+        $scheme = $this->createScheme(self::DEFAULT_ROWS_NUMBER, self::DEFAULT_COLUMNS_NUMBER, self::DEFAULT_NUMBER_OF_MINES);
+        $this->isSchemaCompleteOpen($scheme)->shouldBeBoolean();
+    }
+
+    function it_returns_true_if_schema_is_complete_open()
+    {
+        $scheme = $this->createScheme(self::DEFAULT_ROWS_NUMBER, self::DEFAULT_COLUMNS_NUMBER, self::DEFAULT_NUMBER_OF_MINES);
+        $this->openAllBoxes($scheme->getWrappedObject());
+        $this->isSchemaCompleteOpen($scheme)->shouldBeEqualTo(true);
     }
 
     public function getMatchers()
@@ -202,6 +216,22 @@ class SchemeManagerSpec extends ObjectBehavior
                 if ($box instanceof $boxFQCN) {
                     return [$rowIndex, $columnIndex];
                 }
+            }
+        }
+    }
+
+    /**
+     * @param array $scheme
+     */
+    private function openAllBoxes(array $scheme)
+    {
+        foreach ($scheme as $row) {
+            foreach ($row as $box) {
+                if ($box instanceof MinedBox) {
+                    continue;
+                }
+
+                $box->open();
             }
         }
     }

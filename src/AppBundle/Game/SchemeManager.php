@@ -4,7 +4,6 @@ namespace AppBundle\Game;
 
 use AppBundle\Exception\OpeningMineBoxException;
 use AppBundle\Exception\SchemeManagerException;
-use Symfony\Component\VarDumper\VarDumper;
 
 class SchemeManager
 {
@@ -100,6 +99,28 @@ class SchemeManager
             }
         }
         return $mineStackBuilder;
+    }
+
+    /**
+     * @param array $scheme
+     *
+     * @return bool
+     */
+    public function isSchemaCompleteOpen(array $scheme)
+    {
+        foreach ($scheme as $columns) {
+            foreach ($columns as $box) {
+                if ($box instanceof MinedBox) {
+                    continue;
+                }
+
+                if (!$box->isOpen()) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     /**
