@@ -9,7 +9,7 @@
   table.scheme { border: 1px solid black; width: 50%; margin-left: auto; margin-right: auto; }
   table.scheme td { border: 1px solid black; width: 20px; height: 20px; text-align: center }
   td.box { background-color: #232323 }
-  td.open { background-color: #a9a9a9 }
+  td.open { background-color: #a9a9a9; cursor: default }
   td.mine { background-color: #D20000 }
   td.one_mine { color: #143fdc }
   td.two_mines { color: #12770b }
@@ -40,7 +40,25 @@
   }
   .select-mine-placeholder { background-color:#44c767; }
   .remove-mine-placeholder { background-color:#d20000; }
-
+  #new-game {
+    background-color:#44c767;
+    -moz-border-radius:28px;
+    -webkit-border-radius:28px;
+    border-radius:28px;
+    border:1px solid #18ab29;
+    display:inline-block;
+    cursor:pointer;
+    color:#ffffff;
+    font-family:Arial;
+    font-size:15px;
+    padding:4px 11px;
+    text-decoration:none;
+    text-shadow:0px 1px 0px #2f6627;
+    margin-left: 48%;
+    margin-right: auto;
+    margin-top: 20px;
+  }
+  #new-game a { color: white; text-decoration: none; }
 </style>
 </HEAD>
 <BODY>
@@ -54,5 +72,6 @@
   {% endfor %}
 </table>
 <button id="mine-placeholder" class="select-mine-placeholder" value="0">Select mine placeholder</button>
+<button id="new-game" class="new-game"><a href="{{ path('app.main.start_game') }}">New game</a></button>
 </BODY>
 </HTML>
