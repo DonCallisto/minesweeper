@@ -49,6 +49,11 @@ class GameManagerSpec extends ObjectBehavior
         $this->gameRepo = $this->prophet->prophesize('AppBundle\Repository\GameRepository');
     }
 
+    function letGo()
+    {
+        $this->prophet->checkPredictions();
+    }
+
     function it_is_initializable()
     {
         $this->shouldHaveType('AppBundle\Game\GameManager');
